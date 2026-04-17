@@ -327,9 +327,36 @@ class App:
                          "Queue is empty.\nNothing to upload.", accent=self.pal.cyan)
             return
 
-        # Snapshot badges before upload so we can detect new ones afterwards.
-        before = api.me(api_key, timeout=8.0)
-        before_badges = set(before.badges or []) if before.ok else set()
+        # Connectivity + key check up front. We use /api/me as a combined
+        # reachability + auth probe — single round-trip tells us whether the
+        # pager has internet AND whether the key is still valid, so we can
+        # bail with a meaningful message before touching any CSV.
+        probe = api.me(api_key, timeout=8.0)
+        if not probe.ok:
+            if probe.status == 0:
+                # urllib returned before hitting the server — no route / no DNS.
+                dialog.alert(
+                    self.p, self.pal, "SYNC",
+                    "No internet connection.\n\n"
+                    "Connect to WiFi first\n"
+                    "(use JUMP TO -> WiFMan\n"
+                    "or the pager menu).\n\n"
+                    "Your sessions stay queued.",
+                    accent=self.pal.amber)
+            elif probe.status == 401:
+                dialog.alert(
+                    self.p, self.pal, "SYNC",
+                    "API key rejected (401).\nFix it in CONFIG.",
+                    accent=self.pal.red)
+            else:
+                dialog.alert(
+                    self.p, self.pal, "SYNC",
+                    f"Server unreachable.\nhttp {probe.status}\n"
+                    f"{(probe.error or '')[:40]}",
+                    accent=self.pal.red)
+            return
+        before = probe
+        before_badges = set(before.badges or [])
 
         prog = dialog.Progress(self.p, self.pal, "SYNC")
         total = len(pending)
