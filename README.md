@@ -132,21 +132,32 @@ Configure via `CONFIG → IDLE TIMEOUT +/-` and `DIM LEVEL +/-`, or edit
 
 Set `idle_timeout_s` to a very large number to effectively disable auto-dim.
 
-## App handoff
+## App handoff — JUMP TO …
 
-Any peer payload that implements the `exit 42 + data/.next_payload` protocol
-can be reached from **JUMP TO ...** without paying the cost of restarting
-`pineapplepager` (which takes ~30 s on this device). Spec:
-[APP_HANDOFF.md](https://github.com/pineapple-pager-projects/pineapple_pager_loki/blob/main/APP_HANDOFF.md).
+The main menu shows a **JUMP TO …** entry that lets you hop straight into
+another pager payload without returning to the Hak5 dashboard first. Hak5's
+system pager UI takes ~30 s to restart; this skips it entirely, so you can
+swap between scanner, companion, wardriver and helper apps in a second.
 
-WDGoWars ships these launchers in its own directory:
-- `launch_loki.sh` → `python3 loki_menu.py`
-- `launch_pagergotchi.sh` → `python3 run_pagergotchi.py`
-- `launch_wifman.sh` → `python3 wifman.py`
-- `launch_bjorn.sh` → `python3 Bjorn.py` (with auto-pick of `BJORN_INTERFACE`/`BJORN_IP`)
+JUMP TO only appears if at least one peer is installed. Each supported app
+gets its own row:
 
-The reverse direction (`launch_wdgwars.sh`) lives under `launchers/` — copy
-it into each peer's directory so they can jump back to WDGoWars.
+| Payload | What it does | Repo |
+|---|---|---|
+| **Loki** | Autonomous network reconnaissance — ARP/ICMP host discovery, nmap port + NSE vuln scans, SSH/FTP/Telnet/SMB/MySQL/RDP brute force, file exfiltration | [pineapple-pager-projects/pineapple_pager_loki](https://github.com/pineapple-pager-projects/pineapple_pager_loki) |
+| **PagerGotchi** | Pwnagotchi port — automated WiFi handshake capture with the classic pwnagotchi "face" + mood animations | [pineapple-pager-projects/pineapple_pager_pagergotchi](https://github.com/pineapple-pager-projects/pineapple_pager_pagergotchi) |
+| **Bjorn** | Offensive recon companion with a Viking aesthetic — hosts/attacks/credentials stats, targets list, loot browser | [pineapple-pager-projects/pineapple_pager_bjorn](https://github.com/pineapple-pager-projects/pineapple_pager_bjorn) |
+| **WiFMan** | WiFi profile manager — saved SSID list, one-click reconnect, on-device credential keyboard | [LOCOSP/pineapple_pager_wifman](https://github.com/LOCOSP/pineapple_pager_wifman) |
+
+To make the other direction work (so Loki/PagerGotchi/Bjorn/WiFMan can jump
+*back* to WDGoWars), push `launchers/launch_wdgwars.sh` into each peer's
+directory — the install instructions above include a loop that does this.
+
+Under the hood WDGoWars implements the `exit 42 + data/.next_payload`
+protocol ([APP_HANDOFF spec](https://github.com/pineapple-pager-projects/pineapple_pager_loki/blob/main/APP_HANDOFF.md))
+that brAinphreAk's projects established. Any other pager app that follows
+the same convention will slot in automatically — just drop a matching
+`launch_<name>.sh` into `wdgwars/`.
 
 ## Output format
 
