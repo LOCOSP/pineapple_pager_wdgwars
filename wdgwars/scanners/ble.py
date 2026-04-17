@@ -48,8 +48,6 @@ class BleScanner:
         self._master_fd: int | None = None
         self.last_error: str | None = None
         self.available: bool = False
-        # cache to deduplicate within a single run-loop
-        self._cache: dict[str, BleObs] = {}
 
     def start(self) -> None:
         if not shutil.which("bluetoothctl"):
@@ -118,7 +116,6 @@ class BleScanner:
             self.last_error = f"setup: {e}"
             return
 
-        last_drop = time.time()
         current_mac: str | None = None
         names: dict[str, str] = {}
         buf = b""
@@ -128,10 +125,6 @@ class BleScanner:
             except (ValueError, OSError):
                 break
             if not ready:
-                # Drain cache periodically even if no new data arrives
-                self._maybe_drop(last_drop)
-                if time.time() - last_drop >= self.interval:
-                    last_drop = time.time()
                 continue
             try:
                 chunk = os.read(master_fd, 4096)
@@ -159,26 +152,17 @@ class BleScanner:
                 r = _RSSI_RE.search(line)
                 if r and current_mac:
                     rssi = int(r.group(1) or r.group(2))
-                    self._cache[current_mac] = BleObs(
+                    # Push straight into the drain queue so the HUD reacts in
+                    # real time. Session-level TTL dedup (default 60 s) still
+                    # prevents a spammer from writing the same MAC 100× to CSV;
+                    # this just stops the scanner from holding events for up
+                    # to `interval_s` seconds before handing them off.
+                    self._q.put(BleObs(
                         mac=current_mac,
                         name=names.get(current_mac, ""),
                         rssi=rssi,
                         first_seen=time.time(),
-                    )
-
-            now = time.time()
-            if now - last_drop >= self.interval:
-                for obs in self._cache.values():
-                    self._q.put(obs)
-                self._cache.clear()
-                last_drop = now
-
-    def _maybe_drop(self, last_drop: float) -> None:
-        # Used by the idle branch when select() times out without data.
-        if time.time() - last_drop >= self.interval and self._cache:
-            for obs in self._cache.values():
-                self._q.put(obs)
-            self._cache.clear()
+                    ))
 
 
 def _strip_ansi(s: str) -> str:
