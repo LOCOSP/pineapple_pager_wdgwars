@@ -1,0 +1,10 @@
+[NEW] Device AA:BB:CC:DD:EE:01 PixelBuds
+[CHG] Device AA:BB:CC:DD:EE:01 RSSI: -54
+[NEW] Device 11:22:33:44:55:66 (random)
+[CHG] Device 11:22:33:44:55:66 Name: MiBand5
+[CHG] Device 11:22:33:44:55:66 RSSI: -78
+[NEW] Device 99:88:77:66:55:44 GalaxyWatch
+[CHG] Device 99:88:77:66:55:44 RSSI: -65
+[CHG] Device 99:88:77:66:55:44 RSSI: -63
+[CHG] Device 28:56:5A:8A:4E:70 Name: BRAVIA 4K GB
+[CHG] Device 28:56:5A:8A:4E:70 RSSI: 0xffffffb1 (-79)

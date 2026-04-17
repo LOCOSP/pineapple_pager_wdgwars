@@ -1,0 +1,25 @@
+{
+  "api_key": "",
+  "gps": {
+    "devices": ["/dev/ttyACM2", "/dev/ttyACM1", "/dev/ttyACM0", "/dev/ttyUSB0"],
+    "baud": 9600,
+    "min_sats": 4,
+    "fix_timeout_s": 90
+  },
+  "scan": {
+    "wifi_interval_s": 8,
+    "ble_interval_s": 12,
+    "dedup_ttl_s": 60
+  },
+  "storage": {
+    "max_file_mb": 30,
+    "loot_dir": "/mmc/root/loot/wdgwars"
+  },
+  "ui": {
+    "brightness": 70,
+    "rotation": 270,
+    "font": "fonts/cyber.ttf",
+    "idle_timeout_s": 20,
+    "auto_dim_level": 10
+  }
+}

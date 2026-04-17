@@ -1,0 +1,36 @@
+BSS aa:bb:cc:11:22:33(on wlan0)
+	TSF: 12345 usec
+	freq: 2437
+	beacon interval: 100 TUs
+	capability: ESS Privacy ShortPreamble (0x0431)
+	signal: -52.00 dBm
+	last seen: 0 ms ago
+	SSID: HomeNet
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK
+		 * Capabilities: (0x0000)
+BSS de:ad:be:ef:00:01(on wlan0)
+	freq: 5180
+	signal: -71.00 dBm
+	SSID: OpenAP
+	capability: ESS (0x0011)
+BSS 00:11:22:33:44:55(on wlan0)
+	freq: 2462
+	signal: -65.00 dBm
+	SSID: LegacyWPA
+	capability: ESS Privacy (0x0411)
+	WPA:	 * Version: 1
+		 * Group cipher: TKIP
+		 * Pairwise ciphers: TKIP
+		 * Authentication suites: PSK
+BSS 11:22:33:44:55:66(on wlan0)
+	freq: 5500
+	signal: -78.00 dBm
+	SSID: SAE-Net
+	capability: ESS Privacy (0x0411)
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: SAE

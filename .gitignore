@@ -1,0 +1,46 @@
+# --- secrets ---
+# Raw API key file used during development — never committed.
+.key
+*.key
+# Any config.json with a non-empty api_key must not leak.
+# We ship a template-only config; the runtime injects the real key on-device.
+**/config.local.json
+**/secrets.json
+**/.env
+**/.env.*
+
+# --- runtime state on the pager (never source) ---
+wdgwars/data/
+wdgwars/lib/libpagerctl.so
+wdgwars/lib/pagerctl.py
+/loot/
+**/loot/
+**/sessions/
+*.uploaded
+*.error
+
+# --- editor / wifman-surgery scratch files ---
+.wifman_*
+/*.bak
+*.pre-handoff.bak
+
+# --- python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# --- OS / editor cruft ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
