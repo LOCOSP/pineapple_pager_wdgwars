@@ -32,7 +32,7 @@ fi
 
 echo "[bootstrap] opkg runtime packages (best-effort, needs internet)"
 opkg update >/dev/null 2>&1 || true
-for pkg in iw bluez-utils kmod-usb-acm; do
+for pkg in iw bluez-utils kmod-usb-acm gpsd gpsd-clients; do
     opkg list-installed 2>/dev/null | grep -q "^$pkg " \
         || opkg install "$pkg" >/dev/null 2>&1 \
         || echo "  warn: could not install $pkg"
