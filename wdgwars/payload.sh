@@ -122,6 +122,8 @@ fi
 SOFT_WARN=""
 command -v iw >/dev/null 2>&1 || SOFT_WARN="$SOFT_WARN iw"
 command -v bluetoothctl >/dev/null 2>&1 || SOFT_WARN="$SOFT_WARN bluetoothctl"
+# tcpdump backs the monitor-mode capture path; without it we fall back to iw scan.
+command -v tcpdump >/dev/null 2>&1 || SOFT_WARN="$SOFT_WARN tcpdump-mini"
 [ -e /sys/module/cdc_acm ] || modprobe cdc_acm 2>/dev/null
 [ -e /sys/module/cdc_acm ] || SOFT_WARN="$SOFT_WARN kmod-usb-acm"
 if [ -n "$SOFT_WARN" ]; then

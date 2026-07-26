@@ -13,11 +13,21 @@ that turns it into an offline-first **WiFi + BLE wardriver** feeding the
   <img src="docs/screenshots/test-connection.jpg" alt="TEST CONNECTION response" width="48%">
 </p>
 
-- WiFi capture via `iw dev wlan0 scan`
+- **Two WiFi capture backends** — passive monitor-mode beacon capture when a
+  monitor interface is available, `iw dev … scan` with rotating per-band
+  passes otherwise. The interface is configurable and auto-detected.
 - BLE LE capture via `bluetoothctl` under a pty (real async `[CHG] RSSI` events)
-- GPS from a **u-blox 7** USB stick (NMEA over CDC-ACM) — 3D fix required before scan starts
+- GPS from a **u-blox 7** USB stick via `gpsd` — 3D fix required before scan starts,
+  and every observation is geo-tagged with the position that was true **when it
+  was heard**, not when it was written
+- **Movement-aware deduplication** — a row is written for a new BSSID, after
+  you have moved far enough for the sighting to add information, or when the
+  signal got materially stronger
 - Stores everything as standard **WigleWifi-1.6** CSV in `/mmc/root/loot/wdgwars/sessions/`
-- Manual **SYNC NOW** uploads pending CSVs to `POST /api/upload-csv` (x30/min rate)
+- Manual **SYNC NOW** uploads pending CSVs to `POST /api/upload-csv`, automatically
+  switching to the async `POST /api/v2/upload-csv` queue (gzipped) for large files
+- **UPLOAD LOG** screen reads `GET /api/upload-history` — see the server's own
+  `imported` / `captured` / `no_gps` / `bad_rows` counts on the device
 - "NEW BADGE" flash after sync, including the 🍍 `hak5_pager_user` *Hak5 Pager Op*
 - On-pager UI in cyan cyberpunk style — no laptop, no web dashboard
 - **App handoff** to Loki / PagerGotchi / WiFMan / Bjorn without round-tripping through
@@ -28,15 +38,21 @@ that turns it into an offline-first **WiFi + BLE wardriver** feeding the
 wdgwars/
 ├── payload.sh          # pager manifest + launcher (RINGTONE/LOG/WAIT_FOR_INPUT)
 ├── bootstrap.sh        # one-time: fetches pagerctl from wifman, opkg deps
-├── config.json         # api_key, gps devices, scan intervals, idle settings
+├── config.json         # api_key, gps, scan/dedup tuning, upload mode, idle settings
 ├── handoff.py          # APP_HANDOFF launcher discovery / exit(42) trigger
 ├── wdgwars.py          # entry point + menu loop (App class)
 ├── launch_*.sh         # jump-to launchers for the 4 peer payloads
 ├── lib/                # pagerctl.py + libpagerctl.so (fetched by bootstrap)
 ├── ui/                 # theme, splash, menu, status HUD, dialog, hex keyboard, idle
-├── scanners/           # wifi (iw), ble (bluetoothctl over pty), gps (NMEA)
-├── storage/            # WigleWifi-1.6 CSV writer + TTL deduper
-└── uploader/           # urllib multipart POST + retry
+├── scanners/
+│   ├── iface.py        # `iw dev` enumeration + capture-source selection
+│   ├── wifi.py         # `iw scan` backend: band rotation, cache-age filtering
+│   ├── monitor.py      # monitor-mode backend: radiotap + 802.11 IE decoding
+│   ├── wigle_auth.py   # shared AuthMode bracket-string builder
+│   ├── ble.py          # bluetoothctl over pty
+│   └── gps.py          # gpsd client + rolling position history
+├── storage/            # WigleWifi-1.6 CSV writer + movement-aware deduper
+└── uploader/           # multipart POST (v1 sync / v2 async queue) + history
 ```
 
 ## Install on the pager
@@ -61,8 +77,9 @@ wdgwars/
 
    `bootstrap.sh` does everything in one shot: copies `pagerctl.py` +
    `libpagerctl.so` from the bundled `wifman` payload, installs `iw` /
-   `bluez-utils` / `kmod-usb-acm` via `opkg` (best-effort), creates the
-   loot dir, **and pushes the reverse JUMP TO launcher
+   `bluez-utils` / `kmod-usb-acm` / `gpsd` / `tcpdump-mini` via `opkg`
+   (best-effort — `tcpdump-mini` is only needed for the monitor-mode
+   backend), creates the loot dir, **and pushes the reverse JUMP TO launcher
    (`launch_wdgwars.sh`) into every peer payload it finds installed**
    (Loki / PagerGotchi / WiFMan / Bjorn). No manual scp loop needed.
 
@@ -112,10 +129,19 @@ MAIN MENU
   │
   ├── SYNC NOW       // multipart upload, NEW BADGE flash
   ├── SESSIONS       // list files with v / ^ / x icons
+  ├── UPLOAD LOG     // GET /api/upload-history — server-side import counts
   ├── CONFIG
   │    ├── API KEY          // masked view
   │    ├── EDIT API KEY     // hex on-screen keyboard
   │    ├── TEST CONNECTION  // GET /api/me, shows user/wifi/ble/gang
+  │    ├── SCAN SETUP
+  │    │    ├── WIFI SOURCE      // auto / force monitor / force iw / pick iface
+  │    │    ├── BAND PLAN        // rotate / 2.4 only / 2.4+5 / full sweep
+  │    │    ├── MONITOR HOP      // let us hop channels, or leave it to a
+  │    │    │                    // setup payload that already does
+  │    │    ├── MOVE FILTER +/-  // metres before an AP is logged again
+  │    │    ├── REFRESH TTL +/-  // slow re-log even when standing still
+  │    │    └── REQUIRE GPS FIX  // refuse to write rows without a fix
   │    ├── BRIGHTNESS +/-   // 70% default, stays on position
   │    ├── IDLE TIMEOUT +/- // 20 s default, 5-600 s
   │    ├── DIM LEVEL +/-    // 10% default (hardware off-floor)
@@ -123,6 +149,95 @@ MAIN MENU
   ├── JUMP TO ...    // 4 peers — Loki / PagerGotchi / WiFMan / Bjorn
   └── POWER OFF
 ```
+
+**Live HUD numbers.** The big number in each cell is *rows written to the CSV*.
+The small "seen" number is raw sightings, which climbs several times faster
+because every AP is re-seen on every pass. The `ROWS` cell also shows the rate
+the file is actually growing at, in rows/min.
+
+## Capture backends
+
+| | Monitor mode | `iw scan` |
+|---|---|---|
+| Needs | a monitor interface + `tcpdump` | `iw` only |
+| Sees | every beacon (~10/s per AP) | one snapshot per pass |
+| Position samples | continuous | one per band pass (~2 s) |
+| Channel coverage | hops itself (or leave it to a setup payload) | rotating band passes |
+
+### Measured on the device
+
+Same spot, same minute, on a Pager running OpenWrt 24.10.1 / iw 6.9:
+
+| | old default (`iw scan` on `wlan0`) | new default (`wlan1mon`, monitor) |
+|---|---|---|
+| Unique BSSIDs | 5 | **18** |
+| 2.4 GHz | 5 | 12 |
+| 5 GHz | 0 | **6** |
+
+The gap is not subtle, and most of it is structural. The Pager has two radios:
+`phy0` is **2.4 GHz only**, `phy1` is tri-band. `wlan0` — the interface the
+payload used to hardcode — lives on `phy0`, so it could not see a 5 or 6 GHz
+network at all, ever. `auto` now picks `wlan1mon` off `phy1`.
+
+The whole pipeline (capture → decode → dedup → CSV) costs about **7% of one
+580 MHz MIPS core** with the hopper running, so the headroom is in the radio,
+not the software.
+
+`scan.wifi_iface` picks the source:
+
+| Value | Meaning |
+|---|---|
+| `auto` (default) | prefer a live monitor interface, else the best managed one that is not the pager's own management radio |
+| `monitor` / `scan` | force a backend, auto-pick the interface |
+| `wlan2mon`, `wlan1`, … | use exactly that interface |
+
+If you stage an external adapter — e.g. an Alfa AWUS036ACM via
+[AWUS036ACM_Setup](https://github.com/FusedStamen/AWUS036ACM_Setup) — bring up
+`wlan2mon` first and WDGoWars picks it up on `auto` with no further config.
+When the monitor backend cannot start, it says why and degrades to `iw scan`
+rather than logging nothing for the whole drive.
+
+### Why band rotation
+
+The Pager's primary radio is tri-band. A full `iw scan` sweep touches ~90
+channels, and 6 GHz plus the DFS channels must be scanned passively, so one
+sweep is several seconds — during which a car at 50 km/h covers a few hundred
+metres. Rotating short per-band passes (2.4 GHz every other slot, since that is
+where most of what a wardrive logs lives) puts a position sample down every
+couple of seconds instead.
+
+### Why observations are back-dated
+
+`iw scan` returns the *kernel's BSS cache*, not what the current sweep heard —
+cfg80211 keeps entries for about 30 seconds. Each block carries a
+`last seen: N ms ago` field; WDGoWars parses it, back-dates the observation,
+drops anything older than the sweep, and asks the kernel to flush the cache
+before each pass. Monitor mode sidesteps the problem entirely: every frame
+carries its own capture timestamp.
+
+## Deduplication
+
+Time-only deduplication is the wrong rule for wardriving in both directions.
+Parked, a 60 s TTL writes every visible AP once a minute forever — forty APs in
+range is 2400 rows an hour, all from one coordinate. Driving, it starves: pass
+an AP in 40 seconds and you get a single row, when trilateration wants several
+from different places.
+
+A row is written when **any** of these holds:
+
+| Condition | Default | Config key |
+|---|---|---|
+| BSSID not seen this session | always | — |
+| moved at least N metres since its last row | 30 m | `scan.min_move_m` |
+| signal at least N dB stronger than last time | 6 dB | `scan.rssi_delta_db` |
+| this long has passed regardless | 300 s | `scan.refresh_ttl_s` |
+
+Set `min_move_m` to `0` to fall back to pure time-based behaviour.
+
+**No fix, no row.** GPS state keeps the last known position for the HUD after a
+dropout, but rows are refused while the fix is gone (`scan.require_fix`) — the
+alternative is pinning every AP in a tunnel to the coordinate where the fix
+died. The end-of-session dialog reports how many were held back.
 
 **Buttons:** UP/DOWN = navigate, A = select, B = back. In the HUD: ↑↓ adjust
 brightness live, A pauses scanning, B ends and saves the session.
@@ -181,6 +296,30 @@ sibling marker, failed ones `<name>.csv.error` — the **SESSIONS** screen colou
 accordingly. Uploading a pager-generated file earns the 🍍 **Hak5 Pager Op**
 badge on wdgwars.pl automatically.
 
+`AuthMode` follows Android's `ScanResult.capabilities` layout, which is what
+the WiGLE app itself uploads — WPA1 group, then RSN, then `[WPS]`, then the BSS
+type. Enterprise networks are `[WPA2-EAP-…]` rather than being mislabelled as
+PSK, OWE is `[WPA3-OWE-…]`, and a WPA3 transition-mode AP reports both
+`[WPA3-SAE-…]` and `[WPA2-PSK-…]`. Both capture backends go through the same
+builder so an AP looks identical whichever one saw it.
+
+## Uploading
+
+| | v1 | v2 |
+|---|---|---|
+| Endpoint | `POST /api/upload-csv` | `POST /api/v2/upload-csv` |
+| Shape | synchronous, result in the response | `202` + `job_id`, then poll `GET /api/v2/upload-job/<id>` |
+| Used for | normal sessions | files ≥ 20 MB, gzipped |
+
+`upload.mode` is `auto` (route by size), `v1`, or `v2`. On `auto`, a sync upload
+that dies with a gateway timeout escalates to the queue on retry rather than
+failing the file. Request bodies are streamed from a temp file staged next to
+the CSV — never `/tmp`, which is tmpfs and would cost the device's RAM.
+
+**UPLOAD LOG** on the main menu reads `GET /api/upload-history`, so you can see
+on the pager how many rows the server actually took, and how many it rejected
+for `no_gps` or `bad_rows`.
+
 ## Security
 
 - The real API key lives **only on the pager** in `config.json` and in your
@@ -199,7 +338,22 @@ Parsers (WiFi, BLE, NMEA) + CSV writer + deduper are decoupled from the pager:
 python3 -m unittest discover -t . -s tests
 ```
 
-21 tests covering the stuff that can be exercised without the LCD.
+218 tests covering everything that can be exercised without the LCD: both WiFi
+parsers, the shared AuthMode builder, GPS position history and fix-dropout
+handling, movement-aware dedup, the CSV writer and rotation, interface
+selection, the monitor-mode pcap decoder (fed synthetic frames over a pipe),
+and the uploader's v1/v2 routing and job polling.
+
+`tests/fixtures/iw_scan_pager_iw69.txt` is a real capture off a Pager. It
+pins three format details that differ from older `iw` and each of which broke
+an assumption: every BSS block carries a second `last seen: <boottime>` line
+before the relative age, `freq:` is printed as a float, and the capability
+line is terse — `ESS (0x0431)` with the `Privacy` word omitted even though
+bit 4 is set, which had every WEP network classified as open.
+
+`wdgwars.py` needs `pagerctl`, which only exists on the device;
+`tests/test_app_smoke.py` stubs it so import errors and menu-wiring typos are
+caught off-device too.
 
 ## Non-goals
 

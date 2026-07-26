@@ -7,13 +7,28 @@
     "fix_timeout_s": 90
   },
   "scan": {
-    "wifi_interval_s": 8,
+    "wifi_iface": "auto",
+    "band_plan": ["2g", "5g_fast", "2g", "5g_dfs", "2g", "5g_fast", "2g", "6g_psc"],
+    "wifi_interval_s": 0,
+    "flush_bss_cache": true,
+    "monitor_hop": true,
+    "monitor_dwell_ms": 250,
     "ble_interval_s": 12,
-    "dedup_ttl_s": 60
+    "emit_interval_s": 1.0,
+    "min_move_m": 30,
+    "rssi_delta_db": 6,
+    "refresh_ttl_s": 300,
+    "require_fix": true,
+    "hud_interval_ms": 500,
+    "poll_interval_ms": 150
   },
   "storage": {
     "max_file_mb": 30,
-    "loot_dir": "/mmc/root/loot/wdgwars"
+    "loot_dir": "/mmc/root/loot/wdgwars",
+    "flush_interval_s": 2.0
+  },
+  "upload": {
+    "mode": "auto"
   },
   "ui": {
     "brightness": 70,

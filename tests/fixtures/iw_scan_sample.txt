@@ -15,7 +15,7 @@ BSS de:ad:be:ef:00:01(on wlan0)
 	freq: 5180
 	signal: -71.00 dBm
 	SSID: OpenAP
-	capability: ESS (0x0011)
+	capability: ESS (0x0001)
 BSS 00:11:22:33:44:55(on wlan0)
 	freq: 2462
 	signal: -65.00 dBm

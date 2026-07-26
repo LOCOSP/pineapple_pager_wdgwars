@@ -1,0 +1,344 @@
+BSS 02:00:00:00:00:01(on wlan0)
+	last seen: 1088.333s [boottime]
+	TSF: 452862133611 usec (5d, 05:47:42)
+	freq: 2412.0
+	beacon interval: 100 TUs
+	capability: ESS (0x0431)
+	signal: -59.00 dBm
+	last seen: 224 ms ago
+	Information elements from Probe Response frame:
+	SSID: Wpa2Psk
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK
+		 * Capabilities: 16-PTKSA-RC 1-GTKSA-RC (0x000c)
+	HT capabilities:
+		Capabilities: 0x186d
+			RX LDPC
+			HT20
+			SM Power Save disabled
+			RX HT20 SGI
+			RX HT40 SGI
+			No RX STBC
+			Max AMSDU length: 7935 bytes
+			DSSS/CCK HT40
+		Maximum RX AMPDU length 65535 bytes (exponent: 0x003)
+		Minimum RX AMPDU time spacing: 4 usec (0x05)
+		HT Max RX data rate: 450 Mbps
+		HT TX/RX MCS rate indexes supported: 0-23, 32
+	HT operation:
+		 * primary channel: 1
+		 * secondary channel offset: no secondary
+		 * STA channel width: 20 MHz
+BSS 02:00:00:00:00:02(on wlan0)
+	last seen: 1087.774s [boottime]
+	TSF: 1270263161208 usec (14d, 16:51:03)
+	freq: 2437.0
+	beacon interval: 100 TUs
+	capability: ESS (0x1011)
+	signal: -72.00 dBm
+	last seen: 784 ms ago
+	Information elements from Probe Response frame:
+	SSID: MixedWpaWpa2
+	HT capabilities:
+		Capabilities: 0x1ac
+			HT20
+			SM Power Save disabled
+			RX HT20 SGI
+			TX STBC
+			RX STBC 1-stream
+			Max AMSDU length: 3839 bytes
+			No DSSS/CCK HT40
+		Maximum RX AMPDU length 65535 bytes (exponent: 0x003)
+		Minimum RX AMPDU time spacing: 4 usec (0x05)
+		HT RX MCS rate indexes supported: 0-15
+		HT TX MCS rate indexes are undefined
+	HT operation:
+		 * primary channel: 6
+		 * secondary channel offset: no secondary
+		 * STA channel width: 20 MHz
+	WPA:	 * Version: 1
+		 * Group cipher: TKIP
+		 * Pairwise ciphers: TKIP 00-00-00:0
+		 * Authentication suites: PSK
+	RSN:	 * Version: 1
+		 * Group cipher: TKIP
+		 * Pairwise ciphers: CCMP TKIP
+		 * Authentication suites: PSK
+		 * Capabilities: 1-PTKSA-RC 1-GTKSA-RC (0x0000)
+	BSS Load:
+		 * station count: 3
+		 * channel utilisation: 73/255
+		 * available admission capacity: 31250 [*32us]
+BSS 02:00:00:00:00:03(on wlan0)
+	last seen: 1088.109s [boottime]
+	TSF: 875661972784 usec (10d, 03:14:21)
+	freq: 2447.0
+	beacon interval: 100 TUs
+	capability: ESS (0x1431)
+	signal: -63.00 dBm
+	last seen: 0 ms ago
+	Information elements from Probe Response frame:
+	SSID: Wpa3Transition
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK SAE
+		 * Capabilities: 16-PTKSA-RC 1-GTKSA-RC MFP-capable (0x008c)
+	BSS Load:
+		 * station count: 3
+		 * channel utilisation: 38/255
+		 * available admission capacity: 31250 [*32us]
+	HT capabilities:
+		Capabilities: 0x1ed
+			RX LDPC
+			HT20
+			SM Power Save disabled
+			RX HT20 SGI
+			RX HT40 SGI
+			TX STBC
+			RX STBC 1-stream
+			Max AMSDU length: 3839 bytes
+			No DSSS/CCK HT40
+		Maximum RX AMPDU length 65535 bytes (exponent: 0x003)
+		Minimum RX AMPDU time spacing: No restriction (0x00)
+		HT TX/RX MCS rate indexes supported: 0-15
+	HT operation:
+		 * primary channel: 8
+		 * secondary channel offset: no secondary
+		 * STA channel width: 20 MHz
+	VHT capabilities:
+		VHT Capabilities (0x03016192):
+			Max MPDU length: 11454
+			Supported Channel Width: neither 160 nor 80+80
+			RX LDPC
+			TX STBC
+		VHT RX MCS set:
+			1 streams: MCS 0-9
+			2 streams: MCS 0-9
+			3 streams: not supported
+			4 streams: not supported
+			5 streams: not supported
+			6 streams: not supported
+			7 streams: not supported
+			8 streams: not supported
+		VHT RX highest supported: 216 Mbps
+		VHT TX MCS set:
+			1 streams: MCS 0-9
+			2 streams: MCS 0-9
+			3 streams: not supported
+			4 streams: not supported
+			5 streams: not supported
+			6 streams: not supported
+			7 streams: not supported
+			8 streams: not supported
+		VHT TX highest supported: 216 Mbps
+		VHT extended NSS: supported
+	VHT operation:
+		 * channel width: 0 (20 or 40 MHz)
+		 * center freq segment 1: 0
+		 * center freq segment 2: 0
+		 * VHT basic MCS set: 0xfffa
+	HE capabilities:
+		HE MAC Capabilities (0x08011e085800):
+			+HTC HE Supported
+			Trigger Frame MAC Padding Duration: 2
+			BSR
+			OM Control
+			OFDMA RA
+			Maximum A-MPDU Length Exponent: 3
+			UL 2x996-Tone RU
+			OM Control UL MU Data Disable RX
+		HE PHY Capabilities: (0x002f4e4902c027c6018f00):
+			Punctured Preamble RX: 15
+			LDPC Coding in Payload
+			NDP with 4x HE-LTF and 3.2us GI
+			STBC Tx <= 80MHz
+			STBC Rx <= 80MHz
+			Full Bandwidth UL MU-MIMO
+			DCM Max Constellation: 1
+			DCM Max Constellation Rx: 1
+			Rx HE MU PPDU from Non-AP STA
+			MU Beamformer
+			Ng = 16 SU Feedback
+			Ng = 16 MU Feedback
+			Codebook Size SU Feedback
+			Codebook Size MU Feedback
+			Triggered SU Beamforming Feedback
+			Partial Bandwidth Extended Range
+			Power Boost Factor ar
+			HE SU PPDU & HE PPDU 4x HE-LTF 0.8us GI
+			STBC Tx > 80MHz
+			STBC Rx > 80MHz
+			HE ER SU PPDU 4x HE-LTF 0.8us GI
+			Longer Than 16HE SIG-B OFDM Symbols
+			Non-Triggered CQI Feedback
+			TX 1024-QAM
+			RX 1024-QAM
+BSS 02:00:00:00:00:04(on wlan0)
+	last seen: 1088.185s [boottime]
+	TSF: 616034731908 usec (7d, 03:07:14)
+	freq: 2452.0
+	beacon interval: 100 TUs
+	capability: ESS (0x1411)
+	signal: -60.00 dBm
+	last seen: 0 ms ago
+	Information elements from Probe Response frame:
+	SSID: PlainWpa2
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK
+		 * Capabilities: 16-PTKSA-RC 1-GTKSA-RC (0x000c)
+	BSS Load:
+		 * station count: 0
+		 * channel utilisation: 9/255
+		 * available admission capacity: 0 [*32us]
+	HT capabilities:
+		Capabilities: 0x9a1
+			RX LDPC
+			HT20
+			Static SM Power Save
+			RX HT20 SGI
+			TX STBC
+			RX STBC 1-stream
+			Max AMSDU length: 7935 bytes
+			No DSSS/CCK HT40
+		Maximum RX AMPDU length 65535 bytes (exponent: 0x003)
+		Minimum RX AMPDU time spacing: 4 usec (0x05)
+		HT RX MCS rate indexes supported: 0-23
+		HT TX MCS rate indexes are undefined
+	HT operation:
+		 * primary channel: 9
+		 * secondary channel offset: no secondary
+		 * STA channel width: 20 MHz
+	HE capabilities:
+		HE MAC Capabilities (0x000512181000):
+			+HTC HE Supported
+			TWT Responder
+			BSR
+			Broadcast TWT
+			OM Control
+			Maximum A-MPDU Length Exponent: 2
+			OM Control UL MU Data Disable RX
+		HE PHY Capabilities: (0x202002c00d42811000cc00):
+			242 tone RUs/2.4GHz
+			LDPC Coding in Payload
+			NDP with 4x HE-LTF and 3.2us GI
+			Rx HE MU PPDU from Non-AP STA
+			SU Beamformer
+			SU Beamformee
+			Beamformee STS <= 80Mhz: 3
+			Sounding Dimensions <= 80Mhz: 2
+			Ng = 16 SU Feedback
+			Codebook Size SU Feedback
+			PPE Threshold Present
+			Max NC: 2
+			TX 1024-QAM
+			RX 1024-QAM
+		PPE Threshold 0xea 0xff 0xea 0xff 0x1a 0x1c 0xc7 0x71 0x1c 0x07 
+BSS 02:00:00:00:00:05(on wlan0)
+	last seen: 1068.148s [boottime]
+	TSF: 1271369319480 usec (14d, 17:09:29)
+	freq: 2417.0
+	beacon interval: 100 TUs
+	capability: ESS (0x1431)
+	signal: -70.00 dBm
+	last seen: 20408 ms ago
+	SSID: StaleCacheEntry
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK SAE
+		 * Capabilities: 16-PTKSA-RC 1-GTKSA-RC MFP-capable (0x008c)
+	BSS Load:
+		 * station count: 0
+		 * channel utilisation: 43/255
+		 * available admission capacity: 31250 [*32us]
+	HT capabilities:
+		Capabilities: 0x1ed
+			RX LDPC
+			HT20
+			SM Power Save disabled
+			RX HT20 SGI
+			RX HT40 SGI
+			TX STBC
+			RX STBC 1-stream
+			Max AMSDU length: 3839 bytes
+			No DSSS/CCK HT40
+		Maximum RX AMPDU length 65535 bytes (exponent: 0x003)
+		Minimum RX AMPDU time spacing: No restriction (0x00)
+		HT TX/RX MCS rate indexes supported: 0-15
+	HT operation:
+		 * primary channel: 2
+		 * secondary channel offset: no secondary
+		 * STA channel width: 20 MHz
+	VHT capabilities:
+		VHT Capabilities (0x03016192):
+			Max MPDU length: 11454
+			Supported Channel Width: neither 160 nor 80+80
+			RX LDPC
+			TX STBC
+		VHT RX MCS set:
+			1 streams: MCS 0-9
+			2 streams: MCS 0-9
+			3 streams: not supported
+			4 streams: not supported
+			5 streams: not supported
+			6 streams: not supported
+			7 streams: not supported
+			8 streams: not supported
+		VHT RX highest supported: 216 Mbps
+		VHT TX MCS set:
+			1 streams: MCS 0-9
+			2 streams: MCS 0-9
+			3 streams: not supported
+			4 streams: not supported
+			5 streams: not supported
+			6 streams: not supported
+			7 streams: not supported
+			8 streams: not supported
+		VHT TX highest supported: 216 Mbps
+		VHT extended NSS: supported
+	VHT operation:
+		 * channel width: 0 (20 or 40 MHz)
+		 * center freq segment 1: 0
+		 * center freq segment 2: 0
+		 * VHT basic MCS set: 0xfffa
+	HE capabilities:
+		HE MAC Capabilities (0x08011e085800):
+			+HTC HE Supported
+			Trigger Frame MAC Padding Duration: 2
+			BSR
+			OM Control
+			OFDMA RA
+			Maximum A-MPDU Length Exponent: 3
+			UL 2x996-Tone RU
+			OM Control UL MU Data Disable RX
+		HE PHY Capabilities: (0x002f4e4902c027c6018f00):
+			Punctured Preamble RX: 15
+			LDPC Coding in Payload
+			NDP with 4x HE-LTF and 3.2us GI
+			STBC Tx <= 80MHz
+			STBC Rx <= 80MHz
+			Full Bandwidth UL MU-MIMO
+			DCM Max Constellation: 1
+			DCM Max Constellation Rx: 1
+			Rx HE MU PPDU from Non-AP STA
+			MU Beamformer
+			Ng = 16 SU Feedback
+			Ng = 16 MU Feedback
+			Codebook Size SU Feedback
+			Codebook Size MU Feedback
+			Triggered SU Beamforming Feedback
+			Partial Bandwidth Extended Range
+			Power Boost Factor ar
+			HE SU PPDU & HE PPDU 4x HE-LTF 0.8us GI
+			STBC Tx > 80MHz
+			STBC Rx > 80MHz
+			HE ER SU PPDU 4x HE-LTF 0.8us GI
+			Longer Than 16HE SIG-B OFDM Symbols
+			Non-Triggered CQI Feedback
+			TX 1024-QAM
+			RX 1024-QAM

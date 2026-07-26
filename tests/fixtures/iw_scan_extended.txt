@@ -1,0 +1,74 @@
+BSS 00:aa:00:aa:00:01(on wlan0)
+	TSF: 99999 usec
+	freq: 5180
+	capability: ESS Privacy (0x0411)
+	signal: -61.00 dBm
+	last seen: 250 ms ago
+	SSID: CorpNet
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: IEEE 802.1X
+		 * Capabilities: 1-PTKSA-RC 1-GTKSA-RC (0x0000)
+BSS 00:aa:00:aa:00:02(on wlan0)
+	freq: 2437
+	capability: ESS Privacy (0x0411)
+	signal: -44.00 dBm
+	last seen: 21400 ms ago
+	SSID: StaleFromCache
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK
+BSS 00:aa:00:aa:00:03(on wlan0)
+	freq: 5955
+	capability: ESS Privacy (0x0411)
+	signal: -70.00 dBm
+	last seen: 120 ms ago
+	SSID: SixGig
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK SAE
+BSS 00:aa:00:aa:00:04(on wlan0)
+	freq: 2412
+	capability: ESS (0x0011)
+	signal: -55.00 dBm
+	last seen: 40 ms ago
+	SSID: OweOpen
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: OWE
+BSS 00:aa:00:aa:00:05(on wlan0)
+	freq: 2462
+	capability: ESS Privacy (0x0411)
+	signal: -48.00 dBm
+	last seen: 10 ms ago
+	SSID: Dom Kowalskich\xc5\x82
+	RSN:	 * Version: 1
+		 * Group cipher: CCMP
+		 * Pairwise ciphers: CCMP
+		 * Authentication suites: PSK
+	WPS:	 * Version: 1.0
+		 * Wi-Fi Protected Setup State: 2 (Configured)
+BSS 00:aa:00:aa:00:06(on wlan0)
+	freq: 2417
+	capability: ESS Privacy (0x0411)
+	signal: -80.00 dBm
+	last seen: 0 ms ago
+	SSID: \x00\x00\x00\x00
+	WPA:	 * Version: 1
+		 * Group cipher: TKIP
+		 * Pairwise ciphers: TKIP CCMP
+		 * Authentication suites: PSK
+	RSN:	 * Version: 1
+		 * Group cipher: TKIP
+		 * Pairwise ciphers: CCMP TKIP
+		 * Authentication suites: PSK
+BSS 00:aa:00:aa:00:07(on wlan0)
+	freq: 2432
+	capability: IBSS Privacy (0x0412)
+	signal: -66.00 dBm
+	last seen: 5 ms ago
+	SSID: AdHocNet

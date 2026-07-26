@@ -38,16 +38,21 @@ _NAME_RE = re.compile(r"Name:\s*(.+)")
 class BleScanner:
     """Run bluetoothctl with a pty-less pipe and parse live updates."""
 
-    def __init__(self, hci: str = "hci0", interval_s: float = 12.0) -> None:
+    def __init__(self, hci: str = "hci0", interval_s: float = 12.0,
+                 emit_interval_s: float = 1.0, queue_max: int = 256) -> None:
         self.hci = hci
         self.interval = interval_s
-        self._q: queue.Queue[BleObs] = queue.Queue()
+        self.emit_interval_s = emit_interval_s
+        self._q: queue.Queue[list[BleObs]] = queue.Queue(maxsize=queue_max)
         self._stop = threading.Event()
         self._thr: threading.Thread | None = None
         self._proc: subprocess.Popen | None = None
         self._master_fd: int | None = None
+        self._pending: dict[str, BleObs] = {}
         self.last_error: str | None = None
         self.available: bool = False
+        self.events: int = 0
+        self.dropped_batches: int = 0
 
     def start(self) -> None:
         if not shutil.which("bluetoothctl"):
@@ -88,9 +93,32 @@ class BleScanner:
         out: list[BleObs] = []
         while True:
             try:
-                out.append(self._q.get_nowait())
+                out.extend(self._q.get_nowait())
             except queue.Empty:
                 return out
+
+    def _flush(self) -> None:
+        """Hand the current window's strongest sighting per MAC to the queue.
+
+        `duplicate-data on` makes bluez re-emit RSSI for every advertisement,
+        which in a station concourse is thousands of events a second. Emitting
+        one object per MAC per second instead carries the same information —
+        the closest approach — for a fraction of the allocation churn on a
+        580 MHz core.
+        """
+        if not self._pending:
+            return
+        batch = list(self._pending.values())
+        self._pending.clear()
+        try:
+            self._q.put_nowait(batch)
+        except queue.Full:
+            try:
+                self._q.get_nowait()
+                self._q.put_nowait(batch)
+            except (queue.Empty, queue.Full):
+                pass
+            self.dropped_batches += 1
 
     def _run(self) -> None:
         # Spawn bluetoothctl under a pty so it emits async [CHG]/[NEW] events.
@@ -131,11 +159,16 @@ class BleScanner:
         current_mac: str | None = None
         names: dict[str, str] = {}
         buf = b""
+        last_emit = time.monotonic()
         while not self._stop.is_set() and self._proc.poll() is None:
             try:
                 ready, _, _ = select.select([master_fd], [], [], 0.5)
             except (ValueError, OSError):
                 break
+            now = time.monotonic()
+            if now - last_emit >= self.emit_interval_s:
+                self._flush()
+                last_emit = now
             if not ready:
                 continue
             try:
@@ -164,17 +197,27 @@ class BleScanner:
                 r = _RSSI_RE.search(line)
                 if r and current_mac:
                     rssi = int(r.group(1) or r.group(2))
-                    # Push straight into the drain queue so the HUD reacts in
-                    # real time. Session-level TTL dedup (default 60 s) still
-                    # prevents a spammer from writing the same MAC 100× to CSV;
-                    # this just stops the scanner from holding events for up
-                    # to `interval_s` seconds before handing them off.
-                    self._q.put(BleObs(
-                        mac=current_mac,
-                        name=names.get(current_mac, ""),
-                        rssi=rssi,
-                        first_seen=time.time(),
-                    ))
+                    self.events += 1
+                    prev = self._pending.get(current_mac)
+                    # Keep the strongest sighting in the window — that is the
+                    # closest approach, which is what geo-locating a device
+                    # actually wants.
+                    if prev is None or rssi > prev.rssi:
+                        self._pending[current_mac] = BleObs(
+                            mac=current_mac,
+                            name=names.get(current_mac, ""),
+                            rssi=rssi,
+                            first_seen=time.time(),
+                        )
+                    elif not prev.name:
+                        names_now = names.get(current_mac, "")
+                        if names_now:
+                            self._pending[current_mac] = BleObs(
+                                mac=prev.mac, name=names_now,
+                                rssi=prev.rssi, first_seen=prev.first_seen,
+                            )
+        # Hand over whatever the last partial window collected.
+        self._flush()
 
 
 def _strip_ansi(s: str) -> str:
